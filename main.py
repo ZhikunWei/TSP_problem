@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 from sko.GA import GA
 from sko.GA import GA_TSP
+import  time
 
 
 def readOpt(filename):
@@ -33,7 +34,7 @@ def readData(filename):
             if 'EOF' in line:
                 break
             line = line.strip('\n').split()
-            node, x, y = int(line[0])-1, int(line[1]), int(line[2])
+            node, x, y = int(line[0]) - 1, int(line[1]), int(line[2])
             
             nodeMap.append([x, y])
             pts_num += 1
@@ -74,25 +75,33 @@ opt = readOpt('tsp_data/%s.opt.tour' % problem_set)
 opt_distance = calculateTotalDis(opt)
 opt = np.concatenate([opt, [opt[0]]])
 
-
 points = range(1, len(nodeDis) + 1)
-size_pop = 10
+size_pop = 100
 prob_mut = 0.5
-fig, ax = plt.subplots(1, 3)
+setting = 'A3'
+start = time.process_time()
+
+fig, ax = plt.subplots(2, 2)
 ga_tsp = GA_TSP(func=calculateTotalDis, n_dim=len(nodeDis), size_pop=size_pop, max_iter=2000, prob_mut=prob_mut)
+best_points, best_distance = ga_tsp.run(1)
+best_points_ = np.concatenate([best_points, [best_points[0]]])
+ax[0][0].plot([nodeMap[p][0] for p in best_points_], [nodeMap[p][1] for p in best_points_], 'o-r')
+ax[0][0].set_title('GA Initial solution')
 for itr in range(100):
     best_points, best_distance = ga_tsp.run(100)
     best_points_ = np.concatenate([best_points, [best_points[0]]])
     # ax[itr].plot([nodeMap[p][0] for p in best_points_], [nodeMap[p][1] for p in best_points_], 'o-r')
-    print('itr', itr*100, '. distance %.2f' % best_distance, 'opt distance %.2f' % opt_distance)
+    print('itr', itr * 100, '. distance %.2f' % best_distance, 'dif to opt %.2f' % best_distance - opt_distance)
     if best_distance < opt_distance + 0.01:
         break
-        
-ax[0].plot([nodeMap[p][0] for p in best_points_], [nodeMap[p][1] for p in best_points_], 'o-r')
-plt.title('GA solution')
-ax[1].plot(ga_tsp.generation_best_Y)
-plt.title('Distance Curve')
-ax[2].plot([nodeMap[p][0] for p in opt], [nodeMap[p][1] for p in opt], 'o-r')
-plt.title('Optimal solution')
-plt.savefig('figures/pop%dmut%.1fitr%d.jpg'%(size_pop, prob_mut, itr*100))
+finish = time.process_time()
+print('time cost', finish-start)
+ax[0][1].plot([nodeMap[p][0] for p in best_points_], [nodeMap[p][1] for p in best_points_], 'o-r')
+ax[0][1].set_title('GA solution')
+ax[1][0].plot(ga_tsp.generation_best_Y)
+ax[1][0].set_title('Distance Curve')
+ax[1][1].plot([nodeMap[p][0] for p in opt], [nodeMap[p][1] for p in opt], 'o-r')
+ax[1][1].set_title('Optimal solution')
+fig.suptitle('Exp. %s' % setting)
+plt.savefig('figures/%s_pop%dmut%.1fitr%dtime%.1f.jpg' % (setting, size_pop, prob_mut, itr * 100, finish-start))
 plt.show()
