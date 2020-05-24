@@ -3,12 +3,10 @@
 __author__ = '99K'
 
 import numpy as np
-from scipy import spatial
 import matplotlib.pyplot as plt
-
 from sko.GA import GA
 from sko.GA import GA_TSP
-import  time
+import time
 
 
 def readOpt(filename):
@@ -68,18 +66,16 @@ def calculateTotalDis(path):
     prob_mut : float between 0 and 1
         Probability of mutation
 '''
-problem_set = 'att48'
+problem_set = 'kroC100'
+size_pop = 30
+prob_mut = 0.5
+setting = '%s_A2' % problem_set
+start = time.process_time()
 
 nodeMap, nodeDis = readData('tsp_data/%s.tsp' % problem_set)
 opt = readOpt('tsp_data/%s.opt.tour' % problem_set)
 opt_distance = calculateTotalDis(opt)
 opt = np.concatenate([opt, [opt[0]]])
-
-points = range(1, len(nodeDis) + 1)
-size_pop = 100
-prob_mut = 0.5
-setting = 'A3'
-start = time.process_time()
 
 fig, ax = plt.subplots(2, 2)
 ga_tsp = GA_TSP(func=calculateTotalDis, n_dim=len(nodeDis), size_pop=size_pop, max_iter=2000, prob_mut=prob_mut)
@@ -91,7 +87,7 @@ for itr in range(100):
     best_points, best_distance = ga_tsp.run(100)
     best_points_ = np.concatenate([best_points, [best_points[0]]])
     # ax[itr].plot([nodeMap[p][0] for p in best_points_], [nodeMap[p][1] for p in best_points_], 'o-r')
-    print('itr', itr * 100, '. distance %.2f' % best_distance, 'dif to opt %.2f' % best_distance - opt_distance)
+    print('itr', itr * 100, '. distance %.2f' % best_distance, 'dif to opt %.2f' % (best_distance - opt_distance))
     if best_distance < opt_distance + 0.01:
         break
 finish = time.process_time()
