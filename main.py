@@ -1,5 +1,6 @@
 #!/usr/bin/python 
 # -*-coding:utf-8 -*-
+# to run this program, you should install package using <pip install scikit-opt>
 __author__ = '99K'
 
 import numpy as np
